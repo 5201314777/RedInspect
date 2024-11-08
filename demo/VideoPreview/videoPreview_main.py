@@ -1,10 +1,15 @@
 import functools
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
+
+from demo.VideoPreview.VideoOperationBar import VideoOperationBar
 from demo.VideoPreview.deviceTree import DeviceTree
 from demo.VideoPreview.videoView import VideoView
 from demo.VideoPreview.logger import Logger
-from demo.VideoPreview.operation_bar import OperationBar
+
+from demo.VideoPreview.videoWidget import VideoWidget
+from demo.VideoPreview.machineOperationBar import OperationBar
 class VideoPreview(QtWidgets.QMainWindow):
     """
     主窗口类，用于显示视频预览和设备树。
@@ -26,6 +31,7 @@ class VideoPreview(QtWidgets.QMainWindow):
 
         # 创建视频视图
         self.video_view = VideoView()
+        self.VideooperationBar = VideoOperationBar()
         # 创建日志记录器
         self.logger = Logger()
         self.OperationBar = OperationBar()
@@ -56,9 +62,12 @@ class VideoPreview(QtWidgets.QMainWindow):
         """
         container = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout(container)  # 使用 container 的 layout
-
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.video_view)
+        layout.addWidget(self.VideooperationBar)
         layout.addWidget(self.logger)
+        self.VideooperationBar.selectWidNumComboBox.currentIndexChanged.connect(self.updateVideoLayout)
+        self.updateVideoLayout()
         self.logger.setFixedHeight(150)
         return container
 
@@ -71,4 +80,32 @@ class VideoPreview(QtWidgets.QMainWindow):
         layout.addWidget(self.OperationBar)
         return container
 
+    def updateVideoLayout(self, index=0):
+        num_windows = int(self.VideooperationBar.widNums[index])  # 获取用户选择的窗口数
+        n = int(num_windows ** 0.5)  # 计算 n 的值，即行数和列数
 
+        # 清除当前布局中的所有视频窗口小部件
+        for widget in self.video_view.video_widgets:
+            widget.deleteLater()
+        self.video_view.video_widgets.clear()
+
+        while self.video_view.layout.count():
+            child = self.video_view.layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+        num = int(0)
+        for i in range(n):
+            HLayout = QtWidgets.QHBoxLayout()
+            HLayout.setContentsMargins(0, 0, 0, 0)
+            container = QtWidgets.QWidget()
+            container.setLayout(HLayout)
+            for j in range(n):
+                video_widget = VideoWidget()
+                video_widget.index = i*n+j
+                HLayout.addWidget(video_widget)
+                self.video_view.addVideoWidget(video_widget)  # 连接信号
+                if video_widget not in self.video_view.video_widgets:
+                    self.video_view.video_widgets.append(video_widget)
+            self.video_view.layout.addWidget(container)
+        #print(self.video_view.video_widgets)
+        self.video_view.adjustSize()

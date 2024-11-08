@@ -2,7 +2,6 @@ import sys
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QMenu, QAction, QMessageBox, QInputDialog
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QFormLayout, QLabel, QLineEdit, QPushButton
-from qtpy import QtWidgets
 
 class DeviceTree(QTreeWidget):
     def __init__(self, parent=None):
