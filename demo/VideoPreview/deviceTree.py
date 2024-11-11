@@ -1,9 +1,7 @@
 import sys
-
-from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QMenu, QAction, QMessageBox, QInputDialog
 from PyQt5.QtCore import Qt, QPoint
-
+from qtpy import QtWidgets
 from demo.VideoPreview.AddDeviceDialog import AddDeviceDialog
 class DeviceTree(QTreeWidget):
     def __init__(self, parent=None):
@@ -179,5 +177,9 @@ class DeviceTree(QTreeWidget):
 #         if reply == QMessageBox.Yes:
 #             parent = item.parent()
 #             parent.takeChild(parent.indexOfChild(item))
+
+
+
+
 
 

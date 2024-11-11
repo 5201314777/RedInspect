@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import qtpy
-from PyQt5 import QtWidgets
+from qtpy import QtWidgets
 
 
 class Logger(QtWidgets.QDialog):
