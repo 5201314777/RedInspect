@@ -5,10 +5,7 @@ from PyQt5.QtWidgets import QApplication
 
 from VideoPreview.videoPreview_main import VideoPreview
 # coding=utf-8
-import time
 
-from HCNetSDK import *
-from PlayCtrl import *
 from demo.VideoPreview.deviceTree import DeviceTree
 
 

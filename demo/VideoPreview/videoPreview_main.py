@@ -1,8 +1,12 @@
 import functools
+import sys
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
+from demo.HikSDK.HCNetSDK import netsdkdllpath
+from demo.HikSDK.PlayCtrl import playM4dllpath
 from demo.VideoPreview.VideoOperationBar import VideoOperationBar
 from demo.VideoPreview.deviceTree import DeviceTree
 from demo.VideoPreview.videoView import VideoView
@@ -10,6 +14,11 @@ from demo.VideoPreview.logger import Logger
 
 from demo.VideoPreview.videoWidget import VideoWidget
 from demo.VideoPreview.machineOperationBar import OperationBar
+
+
+import ctypes
+
+
 class VideoPreview(QtWidgets.QMainWindow):
     """
     主窗口类，用于显示视频预览和设备树。
@@ -23,7 +32,9 @@ class VideoPreview(QtWidgets.QMainWindow):
 
     def initialize_UI(self):
         self.resize(1500, 1000)
-
+        self.Objdll = ctypes.cdll.LoadLibrary(netsdkdllpath)
+        self.Playctrldll = ctypes.cdll.LoadLibrary(playM4dllpath)
+        self.Objdll.NET_DVR_Init()
         # 创建设备树
         self.device_tree = DeviceTree()
         #self.device_tree.add_device({'name': "打印机1"})
@@ -31,7 +42,7 @@ class VideoPreview(QtWidgets.QMainWindow):
 
         # 创建视频视图
         self.video_view = VideoView()
-        self.VideooperationBar = VideoOperationBar()
+        self.VideooperationBar = VideoOperationBar(self.Objdll,self.Playctrldll,self.video_view)
         # 创建日志记录器
         self.logger = Logger()
         self.OperationBar = OperationBar()
@@ -45,6 +56,8 @@ class VideoPreview(QtWidgets.QMainWindow):
         central_widget = QtWidgets.QWidget()
         central_widget.setLayout(self.main_layout)
         self.setCentralWidget(central_widget)
+
+
 
     def _create_device_tree_container(self):
         """
@@ -61,10 +74,11 @@ class VideoPreview(QtWidgets.QMainWindow):
         创建并配置中心容器，包含视频视图和日志记录器。
         """
         container = QtWidgets.QWidget()
-        layout = QtWidgets.QVBoxLayout(container)  # 使用 container 的 layout
+        layout = QtWidgets.QVBoxLayout(container)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.video_view)
         layout.addWidget(self.VideooperationBar)
+
         layout.addWidget(self.logger)
         self.VideooperationBar.selectWidNumComboBox.currentIndexChanged.connect(self.updateVideoLayout)
         self.updateVideoLayout()
@@ -93,7 +107,6 @@ class VideoPreview(QtWidgets.QMainWindow):
             child = self.video_view.layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
-        num = int(0)
         for i in range(n):
             HLayout = QtWidgets.QHBoxLayout()
             HLayout.setContentsMargins(0, 0, 0, 0)

@@ -28,4 +28,5 @@ class VideoView(QtWidgets.QWidget):
                 self.video_widgets[self.currentVideoIndex].selectCancle()
             self.selected_widget = self.video_widgets[index]
             self.currentVideoIndex = index
+        print(self.currentVideoIndex)
 

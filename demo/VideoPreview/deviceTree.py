@@ -57,7 +57,6 @@ class DeviceTree(QTreeWidget):
             if device_info:
                 # 提取设备名称和其他信息
                 device_name = device_info['name']
-
                 # 添加新设备到设备树（默认添加到根节点）
                 self.add_device(device_name)
 
