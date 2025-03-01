@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5 import QtWidgets
 from _ctypes import byref
 
+from demo.VideoPreview.VideoThread import VideoThread
 from demo.utils.tool_bar import *
 from demo.utils.QtTool import *
 from demo.VideoPreview.DeviceController import *
@@ -80,37 +81,8 @@ class VideoOperationBar(QtWidgets.QToolBar):
         self.layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.layout)
     def startVideo(self):
-        if not self.device_controller.playctrldll.PlayM4_GetPort(byref(self.device_controller.PlayCtrl_Port)):
-            print(u'获取播放库句柄失败')
-            return
-        self.lUserId, _ = self.device_controller.login_device("192.168.0.64", 8000, "admin", "abcd1234")
-        self.funcRealDataCallBack_V30 = REALDATACALLBACK(self.RealDataCallBack_V30)
-        self.lRealPlayHandle = self.device_controller.open_preview(self.lUserId, self.funcRealDataCallBack_V30)
-
-    def RealDataCallBack_V30(self, lPlayHandle, dwDataType, pBuffer, dwBufSize, pUser):
-        # 码流回调函数
-        #print("调用回调函数")
-        if dwDataType == NET_DVR_SYSHEAD:
-            self.device_controller.playctrldll.PlayM4_SetStreamOpenMode(self.device_controller.PlayCtrl_Port, 0)
-            if self.device_controller.playctrldll.PlayM4_OpenStream(self.device_controller.PlayCtrl_Port, pBuffer,
-                                                                    dwBufSize, 1024 * 1024):
-                global FuncDecCB
-                # FuncDecCB = DECCBFUNWIN(DecCBFun)
-                self.device_controller.playctrldll.PlayM4_SetDecCallBackExMend(self.device_controller.PlayCtrl_Port,
-                                                                               None, None, 0, None)
-                if self.device_controller.playctrldll.PlayM4_Play(self.device_controller.PlayCtrl_Port,
-                                                                  int(self.video_view.winId())):
-                    print(u'播放库播放成功')
-                else:
-                    print(u'播放库播放失败')
-            else:
-                print(u'播放库打开流失败')
-        elif dwDataType == NET_DVR_STREAMDATA:
-            self.device_controller.playctrldll.PlayM4_InputData(self.device_controller.PlayCtrl_Port, pBuffer,
-                                                                dwBufSize)
-        else:
-            print(u'其他数据,长度:', dwBufSize)
-
+        self.video_thread = VideoThread(self.device_controller, self.video_view)
+        self.video_thread.start()
 
     def record(self):
         pass
